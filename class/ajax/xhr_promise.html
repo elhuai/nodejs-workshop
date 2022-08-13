@@ -1,0 +1,76 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>XHR_promise</title>
+</head>
+
+<body>
+    <button id="syncBtn">同步</button>
+    <button id="asyncBtn">非同步</button>
+    <button id="countBtn">測試按鈕</button>
+    <div id="count">0</div>
+    <div id="response">message</div>
+
+    <script>
+        // test url: http://54.71.133.152:3000/
+        let date = new Date();
+
+        var responseDom = document.getElementById('response');
+        var syncBtn = document.getElementById('syncBtn');
+
+        // promise
+        //   只負責非同步動作 把結果傳出來
+        function xhrPromise(method, url) { //參數根據你要傳的東西做改變
+            return new Promise((resolve, reject) => {
+                var xhr = new XMLHttpRequest();
+                xhr.addEventListener('load', function () {
+                    if (xhr.status === 200) {
+                        // 這裡是成功
+                        resolve(xhr.responseText);
+                        // responseDom.innerHTML = `非同步請求已回覆 ${xhr.responseText}`;
+                        // 職責切割 （單一職責）
+                    } else {
+                        // 這裡是失敗
+                        reject(xhr.status);
+                        // responseDom.innerHTML = `非同步請求失敗，狀態碼 ${xhr.status}`;
+                    }
+                });
+
+                xhr.onerror = function (event) {
+                    // 這裡也是失敗
+                    // responseDom.innerHTML = `XHR 非同步請求錯誤`;
+                    reject('XHR 非同步請求錯誤');
+                };
+
+                // method, url, async (default: true)
+                // GET, POST, UPDATE, DELETE, PUT, PATCH,...
+                xhr.open(method, url, true);
+                xhr.send();
+            });
+        }
+
+        //   結果要怎麼用就是then catch決定
+        asyncBtn.addEventListener('click', function () {
+            responseDom.innerText = '開始「非」同步請求';
+            // 實作非同步請求
+            // 'http://54.71.133.152:3000'
+            xhrPromise('GET', 'http://54.71.133.152:3000')
+                .then((data) => {
+                    responseDom.innerHTML = `這個是 promise 版本: ${data}`;
+                })
+                .catch((err) => {
+                    alert(`發生錯誤: ${err}`);
+                });
+        });
+
+
+        var count = document.getElementById('count');
+        var countBtn = document.getElementById('countBtn');
+        countBtn.addEventListener('click', function () {
+            count.innerText = parseInt(count.innerText, 10) + 1;
+        });
+    </script>
+</body>
+
+</html>
