@@ -1,14 +1,6 @@
 {
-  "name": "crawler",
-  "version": "1.0.0",
-  "description": "I am crawler",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": { 
-    "yosay": "^2.0.2"
+  "dependencies": {
+    "axios": "^0.27.2",
+    "moment": "^2.29.4"
   }
 }
