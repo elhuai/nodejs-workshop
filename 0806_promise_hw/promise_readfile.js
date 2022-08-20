@@ -1,18 +1,20 @@
 const fs = require("fs"); 
-var xhrPromise =  new Promise((resolve, reject) => { 
-  var xhr = new XMLHttpRequest();
-  xhr.addEventListener('load', function () {
-    if (xhr.status === 200) {
-        resolve(responseDom.innerHTML = `非同步請求已回覆 ${xhr.responseText}`); //成功
+
+function readFile(fileName, coding) {  //建立一個函數 帶入檔案名稱及編碼格式
+  return new Promise((resolve, reject) => { //回傳一個 promise 物件
+    fs.readFile(fileName, coding, (err, data) => { 
+      if (!err) {
+        resolve(data); //成功
       } else {
-        reject(responseDom.innerHTML = `非同步請求失敗，狀態碼 ${xhr.status}`); //失敗
+        reject("發生錯誤", err); //失敗
       }
     });
   });
-
-xhr("test.txt", "utf8") 
-.then((data)=>{ 
-  xhr.open('GET', 'http://54.71.133.152:3000', true);
-}).catch((err)=>{ 
-    responseDom.innerHTML = `XHR 非同步請求錯誤`;
+}
+readFile("test.txt", "utf8") //執行函數帶入要讀取的檔案名, 字元編碼 
+.then((data)=>{ //成功用 then 讀出內容
+    console.log(data);
+}).catch((err)=>{ //失敗用 catch 回覆 發生錯誤
+    console.log(err);
 });
+
