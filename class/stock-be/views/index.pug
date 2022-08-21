@@ -1,0 +1,9 @@
+extends _layouts/master
+
+block content
+  img(src="/images/test.png", alt="這是圖片")
+  #main
+    h2 我是 SSR 頁面
+    ul 
+      each stock in stocks
+        li 股票名稱 #{stock}
