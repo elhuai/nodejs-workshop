@@ -13,7 +13,6 @@ require('dotenv').config();
 // 降低漏改到的風險 -> 降低程式出錯的風險
 const port = process.env.SERVER_PORT || 3002;
 
-
 // npm i cors
 const cors = require('cors');
 // 使用這個第三方提供的 cors 中間件
@@ -40,6 +39,16 @@ app.use(express.json());
 app.set('view engine', 'pug');
 // 告訴 express 視圖在哪裡
 app.set('views', 'views');
+
+// 設置圖片的靜態檔案 讓圖片快取顯示
+const path = require('path');
+// express.static() －＞讓靜態檔案可以有網址
+// 重點不是檔案的位置
+// 是圖片的網址
+// 可以讀取public底下所有資料
+// 如果不打'public' 這樣網址就要打出來public－>http://localhost:3002/public/uploads/member-1662204981234.png
+// __dirname 表示你所執行的檔案的上一層－＞server.js的母層－stock.be
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 測試 server side render 的寫法
 app.get('/ssr', (req, res, next) => {
@@ -107,6 +116,7 @@ app.use(authRouter);
 app.use((req, res, next) => {
   console.log('在所有路由中間件的下面 -> 404 了！');
   res.status(404).send('Not Found!!');
+  // 這裡用send
 });
 
 // 啟動 server，並且開始 listen 一個 port
