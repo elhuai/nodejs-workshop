@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import axios from 'axios';
 import { API_URL } from '../utils/config';
+import axios from 'axios';
+import { useState } from 'react';
 
 const Register = () => {
   const [member, setMember] = useState({
@@ -8,23 +8,54 @@ const Register = () => {
     name: 'ley',
     password: 'testtest',
     confirmPassword: 'testtest',
+    photo:'',
+    // 先預設照片為空值
   });
 
   function handleChange(e) {
     console.log('handleChange', e.target.name, e.target.value);
-    let newMember = { ...member };
+    // let newMember = { ...member };
     // newMember['name']
     // newMember['email']
-    newMember[e.target.name] = e.target.value;
-    setMember(newMember);
+    // newMember[e.target.name] = e.target.value;
+    // setMember(newMember);
+    // 比較潮的寫法
+    // 先將物件複製－>找到[name]的key值後加入value資訊－＞改變狀態帶入setter函數
+    setMember({ ...member, [e.target.name]: e.target.value });
   }
 
+
+
+  function handleUpload(e){
+    // type=file 的 input
+    // 選好的檔案是放在 e.target.files[0]
+    setMember({ ...member, photo: e.target.files[0] });
+    
+  }
+  
   async function handleSubmit(e) {
     // 把預設行為關掉
     e.preventDefault();
     try {
-      let response = await axios.post(`${API_URL}/auth/register`, member);
+      // 方法1: 沒有圖片上傳、單純 post 一個 JSON 物件而已
+      // 直接把
+      // let response = await axios.post(`${API_URL}/auth/register`, member);
+      // console.log(response.data);
+      
+      // JSON 放不進來 image 檔案，所以需要將圖片轉成文字
+      // 所以這個寫法不行變成JSON所以改寫法'
+      
+      // 方法2: 要上傳圖片 FormDate
+      // 有二進位資料（excel表、圖片...無法用文字呈現的檔案）
+      let formData = new FormData();
+      formData.append('email', member.email);
+      formData.append('name', member.name);
+      formData.append('password', member.password);
+      formData.append('confirmPassword', member.confirmPassword);
+      formData.append('photo', member.photo);
+      let response = await axios.post(`${API_URL}/auth/register`, formData);
       console.log(response.data);
+
     } catch (e) {
       console.error('register', e);
     }
@@ -101,7 +132,8 @@ const Register = () => {
         <label htmlFor="photo" className="flex mb-2 w-32">
           圖片
         </label>
-        <input className="w-full border-2 border-purple-200 rounded-md h-10 focus:outline-none focus:border-purple-400 px-2" type="file" id="photo" name="photo" />
+        <input className="w-full border-2 border-purple-200 rounded-md h-10 focus:outline-none focus:border-purple-400 px-2" type="file" id="photo" name="photo" 
+          onChange={handleUpload}/>
       </div>
       <button className="text-xl bg-indigo-300 px-4 py-2.5 rounded hover:bg-indigo-400 transition duration-200 ease-in" onClick={handleSubmit}>
         註冊
