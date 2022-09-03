@@ -7,13 +7,12 @@ const pool = require("../utils/db");
 const bcrypt = require("bcrypt");
 // 使用雜湊的套件
 
-// /api/1.0/auth/register
+//  
 router.post("/api/1.0/auth/register", async (req, res, next) => {
   // 從api的網站抓下來 email 資料之後，再去做回應 資料回傳－>async放這
   // log確認資料有沒有收到
   console.log("register", req.body);
   // TODO: 驗證來自前端的資料
-
   // 檢查 email 有沒有重複 -> 不能有重複
   // 方法1: 交給 DB: 把 email 欄位設定成 unique
   // 方法2: 我們自己去檢查 -> 去資料撈撈看這個 email 有沒有存在
@@ -23,7 +22,7 @@ router.post("/api/1.0/auth/register", async (req, res, next) => {
   ]);
   if (members.length == 0) {
     // TODO: 密碼要雜湊 hash-> npm i bcrypt
-    let hashPassword = await bcrypt.hash(req.body.password, 10);
+    let hashedPassword = await bcrypt.hash(req.body.password, 10);
     // TODO: 資料存到資料庫 －＞記得用(?),[]
     let result = await pool.execute('INSERT INTO members (email, password,name)VALUES (?,?,?)',[req.body.email, hashedPassword, req.body.name])
     // 等到拿到資料輸入完的資料 再做匯入資料庫
