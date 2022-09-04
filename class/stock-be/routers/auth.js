@@ -168,8 +168,17 @@ router.post('/api/1.0/auth/login', authRules, async (req, res, next) => {
     return res.status(401).json({ message: '帳號或密碼錯誤' });
   }
   // TODO: 密碼比對成功 -> (1) jwt token (2) session/cookie
+  let saveMember = {
+    id: member.id,
+    name: member.name,
+    email: member.email,
+    photo: member.photo,
+  };
+  // 把資料寫進 session 裡面
+  req.session.member = saveMember;
+  // 重點是如何讓前端記住 session id
   // TODO: 回覆前端登入成功
-  res.json({});
+  res.json({ saveMember });
 });
 
 module.exports = router;

@@ -13,6 +13,35 @@ require('dotenv').config();
 // 降低漏改到的風險 -> 降低程式出錯的風險
 const port = process.env.SERVER_PORT || 3002;
 
+const path = require('path');
+
+// npm i session-file-store
+// npm i express-session
+// TODO:
+const expressSession = require('express-session');
+// 把 session 存在硬碟中
+var FileStore = require('session-file-store')(expressSession);
+app.use(
+  expressSession({
+    store: new FileStore({
+      // 告訴資料要儲存的路徑
+      // session 檔案理當要放在 be 裡面
+      // 但因為 nodemonitor 會在資料有所變動的時候就會重啟檔案
+      // 所以把 session 資料夾建在 be 檔案的平等層
+      path: path.join(__dirname, '..', 'sessions'),
+    }),
+    secret: process.env.SESSION_SECRET,
+    // 如果 SESSION沒有改變的話
+    // resave 是記憶體中的資料庫－＞想要存資料庫
+    // 如果是要存在記憶體中－就要設定ture
+    // 暫時的檔案夾給他－true有出現的檔案
+    // 如果 session 沒有改變的話，要不要重新儲存一次？
+    resave: false,
+    // 還沒初始化的，要不要存
+    saveUninitialized: false,
+  })
+);
+
 // npm i cors
 const cors = require('cors');
 // 使用這個第三方提供的 cors 中間件
@@ -41,7 +70,7 @@ app.set('view engine', 'pug');
 app.set('views', 'views');
 
 // 設置圖片的靜態檔案 讓圖片快取顯示
-const path = require('path');
+// const path = require('path');
 // express.static() －＞讓靜態檔案可以有網址
 // 重點不是檔案的位置
 // 是圖片的網址
