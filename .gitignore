@@ -2,3 +2,4 @@ node_modules
 readme
 .env
 temp/*
+.vscode
