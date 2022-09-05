@@ -107,7 +107,7 @@ router.post('/api/1.0/auth/register', uploader.single('photo'), registerRules, a
   // 從api的網站抓下來 email 資料之後，再去做回應 資料回傳－>async放這
   console.log('register', req.body);
 
-  // TODO: 要用 try-catch 把 await 程式包起來
+  // 要用 try-catch 把 await 程式包起來
 
   // log確認資料有沒有收到
   console.log('register', req.body, req.file);
@@ -143,20 +143,21 @@ router.post('/api/1.0/auth/register', uploader.single('photo'), registerRules, a
 
 router.post('/api/1.0/auth/login', authRules, async (req, res, next) => {
   console.log('login', req.body);
-  //    TODO: 資料驗證
+  // 資料驗證
   const authValidateResult = validationResult(req);
   console.log('登入authValidateResult', authValidateResult);
   if (!authValidateResult.isEmpty()) {
     // authValidateResult 不是空 -> 有錯誤 呈現400 -> 回覆json給前端
-    return res.status(400).json({ error: authvalidateResult.array() });
+    return res.status(400).json({ error: authValidateResult.array() });
   }
+
   // 確認這個email有沒有註冊過
   let [members] = await pool.execute('SELECT * FROM members WHERE email = ?', [req.body.email]);
   // 這個回傳一個陣列 第一個陣列是data [{}]
   if (members.length == 0) {
     // member長度大於0－＞有註冊過
     // 為了資訊安全所以在登入這邊要給模糊資訊
-    return res.status(402).json({ message: '登入的帳號或密碼錯誤' });
+    return res.status(401).json({ message: '登入的帳號或密碼錯誤' });
   }
   // 因為email不能重複 所以可以直接撈零就好(只有唯一一筆資料)
   let member = members[0];
@@ -167,9 +168,27 @@ router.post('/api/1.0/auth/login', authRules, async (req, res, next) => {
     // 如果密碼不對，就回覆 401
     return res.status(401).json({ message: '帳號或密碼錯誤' });
   }
-  // TODO: 密碼比對成功 -> (1) jwt token (2) session/cookie
-  // TODO: 回覆前端登入成功
-  res.json({});
+  // 密碼比對成功 -> (1) jwt token (2) session/cookie
+  let saveMember = {
+    id: member.id,
+    name: member.name,
+    email: member.email,
+    photo: member.photo,
+    // loginDt: new Date().toISOString(),
+    // 紀錄登入的時間
+  };
+  // 把資料寫進 session 裡面
+  req.session.member = saveMember;
+  // 重點是如何讓前端記住 session id
+  // 回覆前端登入成功
+  res.json({ saveMember });
+});
+
+// 登出
+router.get('/api/1.0/auth/logout', (req, res, next) => {
+  req.session.member = null;
+  // 如果session.member 沒有資料這樣就會抓不到後端的內容
+  res.json({ message: '登出成功' });
 });
 
 module.exports = router;

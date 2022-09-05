@@ -5,6 +5,9 @@ const router = express.Router();
 
 const pool = require('../utils/db');
 
+// TODO middle
+
+
 // API
 // 列出所有股票代碼
 // GET /stocks
@@ -22,8 +25,10 @@ router.get('/', async (req, res, next) => {
 });
 
 // 列出某個股票代碼的所有報價資料
-// GET /stocks/2330?page=1
-router.get('/:stockId', async (req, res, next) => {
+// GET /stocks/2330?page=
+// TODO  authMiddleware.checkLogin
+// 進入 async 以前先去確認有沒有登入
+router.get('/:stockId', authMiddleware.checkLogin ,async (req, res, next) => {
   const stockId = req.params.stockId;
 
   // 去資料庫撈資料

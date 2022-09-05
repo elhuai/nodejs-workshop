@@ -12,19 +12,58 @@ require('dotenv').config();
 // 目標是: 只需要改一個地方，全部的地方就生效
 // 降低漏改到的風險 -> 降低程式出錯的風險
 const port = process.env.SERVER_PORT || 3002;
+const path = require('path');
 
+// 跨網域存取
 // npm i cors
 const cors = require('cors');
 // 使用這個第三方提供的 cors 中間件
 // 來允許跨源存取
 // 預設都是全部開放
-app.use(cors());
+
+// TODO
+// 若要讓 cookie 可以跨網域存取
+// 1.後端設定
+// 2.前端設定
+const corsOptions = {
+  Credential: true,
+  origin: ['http://localhost:3000'],
+};
+
+app.use(cors(corsOptions));
 // 使用情境: 當前後端網址不同時，只想允許自己的前端來跨源存取
 //          就可以利用 origin 這個設定來限制，不然預設是 * (全部)
 // const corsOptions = {
 //   origin: ['http://localhost:3000'],
 // };
 // app.use(cors(corsOptions));
+
+// 設定 session
+// npm i session-file-store
+// npm i express-session
+const expressSession = require('express-session');
+// 把 session 存在硬碟中
+var FileStore = require('session-file-store')(expressSession);
+app.use(
+  expressSession({
+    store: new FileStore({
+      // 告訴資料要儲存的路徑
+      // session 檔案理當要放在 be 裡面
+      // 但因為 nodemonitor 會在資料有所變動的時候就會重啟檔案
+      // 所以把 session 資料夾建在 be 檔案的平等層
+      path: path.join(__dirname, '..', 'sessions'),
+    }),
+    secret: process.env.SESSION_SECRET,
+    // 如果 SESSION沒有改變的話
+    // resave 是記憶體中的資料庫－＞想要存資料庫
+    // 如果是要存在記憶體中－就要設定ture
+    // 暫時的檔案夾給他－true有出現的檔案
+    // 如果 session 沒有改變的話，要不要重新儲存一次？
+    resave: false,
+    // 還沒初始化的，要不要存
+    saveUninitialized: false,
+  })
+);
 
 // 引用 server 需要的資料庫模組
 const pool = require('./utils/db');
@@ -41,7 +80,7 @@ app.set('view engine', 'pug');
 app.set('views', 'views');
 
 // 設置圖片的靜態檔案 讓圖片快取顯示
-const path = require('path');
+// const path = require('path');
 // express.static() －＞讓靜態檔案可以有網址
 // 重點不是檔案的位置
 // 是圖片的網址
@@ -104,6 +143,16 @@ app.use('/api/1.0/stocks', stockRouter);
 let authRouter = require('./routers/auth');
 app.use(authRouter);
 
+let memberRouter = require('./routers/member');
+app.use('/api/1.0/member', memberRouter);
+
+// TODO故意測試發生錯誤的情況
+app.get('/err',(req,res,next)=>{
+  // 如果next是要去下一個中間件就不要放任何參數
+  // 不然會跳到錯誤處理中間件（有任何參數就會進入錯誤處理中間件）
+
+})
+
 // app.get('/test', (req, res, next) => {
 //   console.log('這裡是 test 2');
 //   res.send('Hello Test 2');
@@ -118,6 +167,16 @@ app.use((req, res, next) => {
   res.status(404).send('Not Found!!');
   // 這裡用send
 });
+
+// 錯誤處理中間件；放在所有中間件的後面
+// 會有四個參數
+// 會捕捉上方所有中間件的例外
+// 有點像是所有中間件的 catch
+app.use((err,req,res,next)=>{
+  console.errpr('來自四個參數的錯誤處理中間件',err);
+  console.error('path:',req.path);
+  res.status(500).json({message: '請假系統管理員'})
+})
 
 // 啟動 server，並且開始 listen 一個 port
 app.listen(port, () => {
