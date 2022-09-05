@@ -168,18 +168,26 @@ router.post('/api/1.0/auth/login', authRules, async (req, res, next) => {
     // 如果密碼不對，就回覆 401
     return res.status(401).json({ message: '帳號或密碼錯誤' });
   }
+<<<<<<< HEAD
   // 密碼比對成功 -> (1) jwt token (2) session/cookie
+=======
+  // TODO: 密碼比對成功 -> (1) jwt token (2) session/cookie
+>>>>>>> d83c593df41b9e1dde89f1c68fb13790bc8b59c8
   let saveMember = {
     id: member.id,
     name: member.name,
     email: member.email,
     photo: member.photo,
+<<<<<<< HEAD
     // loginDt: new Date().toISOString(),
     // 紀錄登入的時間
+=======
+>>>>>>> d83c593df41b9e1dde89f1c68fb13790bc8b59c8
   };
   // 把資料寫進 session 裡面
   req.session.member = saveMember;
   // 重點是如何讓前端記住 session id
+<<<<<<< HEAD
   // 回覆前端登入成功
   res.json({ saveMember });
 });
@@ -189,6 +197,10 @@ router.get('/api/1.0/auth/logout', (req, res, next) => {
   req.session.member = null;
   // 如果session.member 沒有資料這樣就會抓不到後端的內容
   res.json({ message: '登出成功' });
+=======
+  // TODO: 回覆前端登入成功
+  res.json({ saveMember });
+>>>>>>> d83c593df41b9e1dde89f1c68fb13790bc8b59c8
 });
 
 module.exports = router;

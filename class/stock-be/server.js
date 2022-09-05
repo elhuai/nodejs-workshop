@@ -14,7 +14,39 @@ require('dotenv').config();
 const port = process.env.SERVER_PORT || 3002;
 const path = require('path');
 
+<<<<<<< HEAD
 // 跨網域存取
+=======
+const path = require('path');
+
+// npm i session-file-store
+// npm i express-session
+// TODO:
+const expressSession = require('express-session');
+// 把 session 存在硬碟中
+var FileStore = require('session-file-store')(expressSession);
+app.use(
+  expressSession({
+    store: new FileStore({
+      // 告訴資料要儲存的路徑
+      // session 檔案理當要放在 be 裡面
+      // 但因為 nodemonitor 會在資料有所變動的時候就會重啟檔案
+      // 所以把 session 資料夾建在 be 檔案的平等層
+      path: path.join(__dirname, '..', 'sessions'),
+    }),
+    secret: process.env.SESSION_SECRET,
+    // 如果 SESSION沒有改變的話
+    // resave 是記憶體中的資料庫－＞想要存資料庫
+    // 如果是要存在記憶體中－就要設定ture
+    // 暫時的檔案夾給他－true有出現的檔案
+    // 如果 session 沒有改變的話，要不要重新儲存一次？
+    resave: false,
+    // 還沒初始化的，要不要存
+    saveUninitialized: false,
+  })
+);
+
+>>>>>>> d83c593df41b9e1dde89f1c68fb13790bc8b59c8
 // npm i cors
 const cors = require('cors');
 // 使用這個第三方提供的 cors 中間件
